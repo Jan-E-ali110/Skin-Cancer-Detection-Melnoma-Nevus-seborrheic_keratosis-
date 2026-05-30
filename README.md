@@ -170,7 +170,7 @@ huggingface_hub
 | **Developer** | Jan Ali |
 | **Institution** | SMIU Karachi |
 | **Supervisor** | Sir M. Ameen Chhajro |
-| **Project Type** | Final Year Project — Computer Vision |
+| **Project Type** | Semester Project — Computer Vision |
 | **Contact** | [Hugging Face Profile](https://huggingface.co/janali01) |
 
 ---
