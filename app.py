@@ -4,6 +4,8 @@ import torch.nn.functional as F
 from torchvision import models, transforms
 from PIL import Image
 import numpy as np
+import urllib.request
+import os
 
 # ─── Page Config ───────────────────────────────────────────────────────────────
 st.set_page_config(
@@ -22,22 +24,30 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ─── Class Labels ──────────────────────────────────────────────────────────────
-# ImageFolder alphabetical order: melanoma, nevus, seborrheic_keratosis
 CLASS_NAMES = ["Melanoma", "Nevus", "Seborrheic Keratosis"]
-POSITIVE_CLASS = "Melanoma"  # malignant
+POSITIVE_CLASS = "Melanoma"
 
 # ─── Model Load ────────────────────────────────────────────────────────────────
+MODEL_URL = "https://huggingface.co/janali01/skin-cancer-mobilenetv3/resolve/main/checkpoint_mobilenet_v3.pth"
+MODEL_PATH = "checkpoint_mobilenet_v3.pth"
+
 @st.cache_resource
 def load_model():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    # Download model from Hugging Face if not already present
+    if not os.path.exists(MODEL_PATH):
+        with st.spinner("⬇️ Downloading model from Hugging Face..."):
+            urllib.request.urlretrieve(MODEL_URL, MODEL_PATH)
+
     model = models.mobilenet_v3_large(weights=None)
     model.classifier = torch.nn.Sequential(
-        torch.nn.Linear(960, 256),  
+        torch.nn.Linear(960, 256),
         torch.nn.ReLU(),
         torch.nn.Dropout(0.3),
         torch.nn.Linear(256, 3)
     )
-    checkpoint = torch.load("checkpoint_mobilenet_v3.pth", map_location=device)
+    checkpoint = torch.load(MODEL_PATH, map_location=device)
     model.load_state_dict(checkpoint["model_state_dict"])
     model.eval()
     model.to(device)
@@ -105,7 +115,6 @@ if uploaded:
         </div>
     """, unsafe_allow_html=True)
 
-    # Confidence bar for all classes
     st.markdown("#### Confidence Scores")
     for i, cls in enumerate(CLASS_NAMES):
         score = float(probs[i]) * 100
