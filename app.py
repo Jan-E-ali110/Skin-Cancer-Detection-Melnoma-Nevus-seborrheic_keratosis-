@@ -33,7 +33,7 @@ MODEL_PATH = "checkpoint_mobilenet_v3.pth"
 
 @st.cache_resource
 def load_model():
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("cpu")
 
     # Download model from Hugging Face if not already present
     if not os.path.exists(MODEL_PATH):
